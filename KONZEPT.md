@@ -79,23 +79,24 @@ app-buergerportal/
 
 ## 4. Architektur: Möglichst wenig Updates
 
-Die Apps sollen **nicht neu gebaut** werden müssen, wenn sich kleine Inhalte ändern (Texte, Farben, Reihenfolge von Kacheln, neue Ministerien, neue Antragsarten). Dafür nutzen wir ein **servergesteuertes UI**:
+> **Wichtige Einschränkung:** Die Website und das Supabase-Backend werden vom Mitstreiter betrieben. Wir können dort **keine Änderungen** vornehmen (keine neuen Tabellen, keine Edge Functions, keine Trigger). Die Apps müssen also mit den bestehenden Datenstrukturen arbeiten.
 
-| Ebene | Was im App-Code bleibt | Was vom Backend kommt |
-|-------|------------------------|----------------------|
-| **Navigation** | Feste Hauptpunkte (Übersicht, Ausweis, Termine, Einstellungen) | Reihenfolge, Sichtbarkeit, Badges |
-| **Dashboard-Kacheln** | Typen und Layout-Regeln | Inhalt, Icons, Links, Sichtbarkeit |
-| **Texte & Labels** | Fallback-Werte | Überschreibungen aus `app_config` |
-| **Farben** | Basis-Palette + System-Integration | Aktive Akzentfarbe, saisonale Anpassungen |
-| **Ankündigungen** | Darstellungskomponente | Titel, Body, Aktion, Zielgruppe |
-| **Formulare** | Validierungsregeln, Feld-Typen | Felder, Reihenfolge, Pflichtangaben |
+Die Apps sollen trotzdem **nicht neu gebaut** werden müssen, wenn sich Inhalte auf der Website ändern. Dafür nutzen wir das **bestehende Supabase-Projekt als Quelle** und eingebettete Web-Ansichten für stark formatierte Inhalte.
+
+| Ebene | Lösung |
+|-------|--------|
+| **Navigation** | Feste Hauptpunkte im Code; Inhalte dahinter kommen aus Supabase |
+| **Dashboard-Kacheln** | Native Kacheln, die existierende Daten anzeigen (Termine, Kontostand, neue Ankündigungen) |
+| **Ankündigungen / Regierung / Ministerien** | Native Liste + WebView-Detailansicht der Website, falls das Layout komplex ist |
+| **Formulare (Anträge, Terminbuchung)** | Bestehende Web-Formulare in kontrollierter WebView – so spiegelt die App sofort jede Website-Änderung |
+| **Farben & Branding** | Feste Maiskolbistan-Palette im Code, angepasst an System-Design (Material You / iOS) |
 
 ### Umsetzung
 
-- **Remote-Config-Tabelle** in Supabase (`app_config`, `app_tiles`, `app_announcements`)
-- App lädt Konfiguration beim Start und cached sie lokal
-- Bei Änderungen reicht ein Backend-Update – keine Store-App-Updates nötig
-- Nur bei neuen **nativen Features** (z. B. QR-Scanner, neue Berechtigungen) wird ein App-Update fällig
+- Apps lesen nur aus den **vorhandenen Supabase-Tabellen** (z. B. Termine, Anträge, Bürgerprofil)
+- Für Bereiche, die sich häufig ändern oder viel HTML benötigen, verwenden wir eine **eingebettete WebView** mit der Website-URL
+- App cached gelesene Supabase-Daten lokal, um Offline-Anzeige zu ermöglichen
+- Ein App-Update ist nur nötig bei neuen **nativen Features** oder Änderungen an der Authentifizierung
 
 ---
 
@@ -141,11 +142,20 @@ Push-Mitteilungen sind Teil des MVP.
 
 ### Architektur
 
-- Supabase-Datenbank-Trigger / Edge Functions erzeugen Mitteilungen
-- **Android:** Firebase Cloud Messaging (FCM)
-- **iOS / macOS:** Apple Push Notification service (APNs)
-- Token werden in der `user_profiles`-Tabelle gespeichert
-- Benutzer kann Mitteilungen pro Kategorie in den Einstellungen deaktivieren
+Da wir Supabase **nicht verändern** dürfen, nutzen wir zwei Arten von Mitteilungen:
+
+#### 1. Lokale Mitteilungen (kein Server nötig)
+- Terminerinnerungen basierend auf den in der App gespeicherten Terminen
+- Wahl-/Umfrage-Erinnerungen, wenn das Datum bekannt ist
+- Werden direkt vom Betriebssystem verwaltet
+
+#### 2. Push-Mitteilungen (später, optional)
+- Benötigen einen eigenen, kleinen Server/Dienst, den wir betreiben
+- Dieser Dienst **pollt** in regelmäßigen Abständen die öffentlichen/freigegebenen Supabase-Daten (z. B. `announcements`)
+- Bei neuen Einträgen sendet er über FCM (Android) bzw. APNs (iOS/macOS)
+- Geräte-Token werden in unserem eigenen Dienst gespeichert, **nicht** in Supabase
+
+> Im MVP konzentrieren wir uns auf **lokale Mitteilungen**. Push über einen eigenen Server kommt erst, wenn Android & iOS stabil laufen.
 
 ---
 
