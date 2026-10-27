@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,7 +32,12 @@ import androidx.compose.ui.unit.dp
 import de.humboldtgym.maiskolbistan.buergerportal.R
 
 @Composable
-fun LoginScreen(onLogin: () -> Unit) {
+fun LoginScreen(
+    onLogin: (String, String) -> Unit,
+    isLoading: Boolean,
+    error: String?,
+    onDismissError: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -62,7 +70,8 @@ fun LoginScreen(onLogin: () -> Unit) {
             value = email,
             onValueChange = { email = it },
             label = { Text(stringResource(R.string.email)) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
@@ -70,14 +79,33 @@ fun LoginScreen(onLogin: () -> Unit) {
             onValueChange = { password = it },
             label = { Text(stringResource(R.string.password)) },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
         Spacer(Modifier.height(24.dp))
         Button(
-            onClick = onLogin,
-            modifier = Modifier.fillMaxWidth()
+            onClick = { onLogin(email, password) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
         ) {
-            Text(stringResource(R.string.login))
+            if (isLoading) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+            } else {
+                Text(stringResource(R.string.login))
+            }
         }
+    }
+
+    if (error != null) {
+        AlertDialog(
+            onDismissRequest = onDismissError,
+            title = { Text("Fehler") },
+            text = { Text(error) },
+            confirmButton = {
+                TextButton(onClick = onDismissError) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }

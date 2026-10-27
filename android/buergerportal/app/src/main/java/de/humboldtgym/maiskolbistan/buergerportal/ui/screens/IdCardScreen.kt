@@ -1,5 +1,7 @@
 package de.humboldtgym.maiskolbistan.buergerportal.ui.screens
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,21 +14,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import de.humboldtgym.maiskolbistan.buergerportal.R
 import de.humboldtgym.maiskolbistan.buergerportal.ui.theme.Gold400
 import de.humboldtgym.maiskolbistan.buergerportal.ui.theme.Maroon700
 import de.humboldtgym.maiskolbistan.buergerportal.ui.theme.Parchment50
+import de.humboldtgym.maiskolbistan.buergerportal.ui.viewmodel.PortalViewModel
+import de.humboldtgym.maiskolbistan.buergerportal.util.QrCodeGenerator
 
 @Composable
-fun IdCardScreen() {
+fun IdCardScreen(viewModel: PortalViewModel = viewModel()) {
+    val state by viewModel.uiState
+    val citizen = state.citizen
+    val qrBitmap = remember(citizen?.id) {
+        citizen?.id?.let { QrCodeGenerator.generate(it, 512) }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -38,6 +53,11 @@ fun IdCardScreen() {
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
+
+        if (state.isLoading) {
+            CircularProgressIndicator()
+        }
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = Maroon700)
@@ -55,20 +75,37 @@ fun IdCardScreen() {
                 )
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
+                        .size(200.dp)
                         .background(Parchment50),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("QR", color = Maroon700, fontWeight = FontWeight.Bold)
+                    if (qrBitmap != null) {
+                        Image(
+                            bitmap = qrBitmap.asImageBitmap(),
+                            contentDescription = "QR-Code Bürger-ID"
+                        )
+                    } else {
+                        Text("QR", color = Maroon700, fontWeight = FontWeight.Bold)
+                    }
                 }
-                Text("Max Mustermann", color = Parchment50, style = MaterialTheme.typography.titleLarge)
-                Text("Bürger-ID: MK-123456", color = Parchment50)
-                Text("Geboren: 01.01.2005", color = Parchment50)
+                Text(
+                    citizen?.name ?: "Unbekannt",
+                    color = Parchment50,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    "Bürger-ID: ${citizen?.id ?: "-"}",
+                    color = Parchment50
+                )
+                Text(
+                    "Status: ${citizen?.status ?: "-"}",
+                    color = Parchment50
+                )
             }
         }
         Spacer(Modifier.height(24.dp))
         Text(
-            text = "Platzhalter: QR-Code wird später dynamisch generiert.",
+            text = "Dieser QR-Code enthält deine Bürger-ID.",
             style = MaterialTheme.typography.bodyLarge
         )
     }

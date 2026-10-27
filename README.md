@@ -15,7 +15,17 @@
 
 ## APK
 
-- `android/app-release-unsigned.apk` – Release-Build (unsigniert, zum Testen)
+- `android/app-debug.apk` – Debug-Build, signiert, direkt installierbar
+
+## Android-Features
+
+- ✅ Echte Anmeldung gegen Supabase Auth
+- ✅ Profil aus `profiles`-Tabelle
+- ✅ Bürgerdaten aus `kv` (`mks:registry:v4`)
+- ✅ Termine aus `kv` (`mks:appointments:v1`)
+- ✅ Ankündigungen aus `kv` (`mks:announcements:v1`)
+- ✅ Echter QR-Code aus der Bürger-ID
+- ✅ Abmelden
 
 ## Dokumentation
 

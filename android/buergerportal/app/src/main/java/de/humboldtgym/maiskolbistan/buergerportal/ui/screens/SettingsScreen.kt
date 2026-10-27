@@ -13,18 +13,24 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import de.humboldtgym.maiskolbistan.buergerportal.R
+import de.humboldtgym.maiskolbistan.buergerportal.ui.viewmodel.PortalViewModel
 
 @Composable
-fun SettingsScreen(onLogout: () -> Unit) {
-    var darkMode by remember { mutableStateOf(false) }
+fun SettingsScreen(
+    onLogout: () -> Unit,
+    viewModel: PortalViewModel = viewModel()
+) {
     var notifications by remember { mutableStateOf(true) }
+    val state by viewModel.uiState
 
     Column(
         modifier = Modifier
@@ -36,17 +42,21 @@ fun SettingsScreen(onLogout: () -> Unit) {
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        ListItem(
-            headlineContent = { Text("Dunkelmodus") },
-            trailingContent = { Switch(checked = darkMode, onCheckedChange = { darkMode = it }) }
-        )
+
+        state.profile?.let { profile ->
+            ListItem(
+                headlineContent = { Text("Angemeldet als") },
+                supportingContent = { Text(profile.displayName ?: profile.email) }
+            )
+        }
+
         ListItem(
             headlineContent = { Text("Mitteilungen") },
             trailingContent = { Switch(checked = notifications, onCheckedChange = { notifications = it }) }
         )
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
         ListItem(headlineContent = { Text("Version") }, supportingContent = { Text("1.0.0") })
-        ListItem(headlineContent = { Text("Datenschutz") })
+        ListItem(headlineContent = { Text("Backend") }, supportingContent = { Text("Supabase") })
         Spacer(modifier = Modifier.weight(1f))
         Button(
             onClick = onLogout,
