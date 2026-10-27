@@ -1,0 +1,3 @@
+<resources>
+    <style name="Theme.Buergerportal" parent="android:Theme.Material.NoActionBar" />
+</resources>

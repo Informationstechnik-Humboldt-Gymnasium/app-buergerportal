@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Maiskolbistan Bürgerportal</string>
+    <string name="login_title">Republik Maiskolbistan</string>
+    <string name="login_subtitle">Bürgerportal</string>
+    <string name="email">E-Mail-Adresse</string>
+    <string name="password">Passwort</string>
+    <string name="login">Anmelden</string>
+    <string name="overview">Übersicht</string>
+    <string name="id_card">Ausweis</string>
+    <string name="appointments">Termine</string>
+    <string name="settings">Einstellungen</string>
+    <string name="logout">Abmelden</string>
+</resources>

@@ -9,13 +9,18 @@
 
 | Ordner | Plattform | Status |
 |--------|-----------|--------|
-| `android/` | Android (Kotlin + Jetpack Compose) | ⏳ Struktur angelegt |
+| `android/` | Android (Kotlin + Jetpack Compose) | ✅ App gebaut, APK vorhanden |
 | `ios/` | iOS (Swift + SwiftUI) | ⏳ Struktur angelegt |
 | `macos/` | macOS (Swift + SwiftUI) | ⏳ Struktur angelegt |
+
+## APK
+
+- `android/app-release-unsigned.apk` – Release-Build (unsigniert, zum Testen)
 
 ## Dokumentation
 
 - [KONZEPT.md](./KONZEPT.md) – Funktionsumfang, Roadmap, Design-Grundlagen
+- [android/buergerportal/README.md](./android/buergerportal/README.md) – Android-Projekt-Übersicht
 
 ## Hinweis
 
