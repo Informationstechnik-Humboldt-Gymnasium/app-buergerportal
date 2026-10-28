@@ -35,7 +35,7 @@ import de.humboldtgym.maiskolbistan.buergerportal.ui.viewmodel.PortalViewModel
 import de.humboldtgym.maiskolbistan.buergerportal.util.QrCodeGenerator
 
 @Composable
-fun IdCardScreen(viewModel: PortalViewModel = viewModel()) {
+fun IdCardScreen(viewModel: PortalViewModel = viewModel(factory = PortalViewModel.Factory)) {
     val state by viewModel.uiState
     val citizen = state.citizen
     val qrBitmap = remember(citizen?.id) {

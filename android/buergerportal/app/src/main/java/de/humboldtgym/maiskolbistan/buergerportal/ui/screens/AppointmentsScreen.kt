@@ -20,7 +20,7 @@ import de.humboldtgym.maiskolbistan.buergerportal.data.model.Appointment
 import de.humboldtgym.maiskolbistan.buergerportal.ui.viewmodel.PortalViewModel
 
 @Composable
-fun AppointmentsScreen(viewModel: PortalViewModel = viewModel()) {
+fun AppointmentsScreen(viewModel: PortalViewModel = viewModel(factory = PortalViewModel.Factory)) {
     val state by viewModel.uiState
 
     Column(

@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -57,7 +56,8 @@ sealed class Screen(val route: String, val labelRes: Int, val icon: @Composable 
 }
 
 @Composable
-fun BuergerportalApp(authViewModel: AuthViewModel = viewModel()) {
+fun BuergerportalApp() {
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory)
     val navController = rememberNavController()
     val items = listOf(Screen.Overview, Screen.Appointments, Screen.IdCard, Screen.Settings)
     val navBackStackEntry by navController.currentBackStackEntryAsState()

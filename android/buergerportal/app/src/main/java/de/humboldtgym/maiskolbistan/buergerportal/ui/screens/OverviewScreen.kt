@@ -27,7 +27,7 @@ import de.humboldtgym.maiskolbistan.buergerportal.data.model.Announcement
 import de.humboldtgym.maiskolbistan.buergerportal.ui.viewmodel.PortalViewModel
 
 @Composable
-fun OverviewScreen(viewModel: PortalViewModel = viewModel()) {
+fun OverviewScreen(viewModel: PortalViewModel = viewModel(factory = PortalViewModel.Factory)) {
     val state by viewModel.uiState
 
     Column(

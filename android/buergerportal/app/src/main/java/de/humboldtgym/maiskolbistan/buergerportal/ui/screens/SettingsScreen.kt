@@ -27,7 +27,7 @@ import de.humboldtgym.maiskolbistan.buergerportal.ui.viewmodel.PortalViewModel
 @Composable
 fun SettingsScreen(
     onLogout: () -> Unit,
-    viewModel: PortalViewModel = viewModel()
+    viewModel: PortalViewModel = viewModel(factory = PortalViewModel.Factory)
 ) {
     var notifications by remember { mutableStateOf(true) }
     val state by viewModel.uiState
