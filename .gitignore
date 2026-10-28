@@ -1,0 +1,37 @@
+# macOS
+.DS_Store
+
+# Android
+*.apk
+!android/app-debug.apk
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+build/
+local.properties
+.gradle/
+*.iml
+.idea/
+.cxx/
+captures/
+.externalNativeBuild
+
+# iOS / macOS / Xcode
+build/
+DerivedData/
+*.xcworkspace/xcuserdata
+*.xcodeproj/xcuserdata
+*.xcodeproj/project.xcworkspace/xcuserdata
+*.ipa
+*.app.dSYM.zip
+*.dSYM
+*.playground
+
+# Misc
+*.log
+*.tmp
+*.swp
+*.swo

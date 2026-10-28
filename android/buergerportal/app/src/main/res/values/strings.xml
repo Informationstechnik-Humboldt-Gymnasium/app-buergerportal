@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Maiskolbistan Bürgerportal</string>
+    <string name="app_name">Bürgerportal Maiskolbistan</string>
     <string name="login_title">Republik Maiskolbistan</string>
     <string name="login_subtitle">Bürgerportal</string>
     <string name="email">E-Mail-Adresse</string>
