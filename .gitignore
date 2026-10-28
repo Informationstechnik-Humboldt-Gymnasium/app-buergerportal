@@ -35,3 +35,4 @@ DerivedData/
 *.tmp
 *.swp
 *.swo
+build-dmg/
