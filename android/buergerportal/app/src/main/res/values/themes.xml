@@ -1,3 +1,9 @@
 <resources>
-    <style name="Theme.Buergerportal" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Buergerportal" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/gold_400</item>
+        <item name="colorPrimaryDark">@color/maroon_700</item>
+        <item name="colorAccent">@color/gold_500</item>
+        <item name="android:statusBarColor">@color/maroon_700</item>
+        <item name="android:navigationBarColor">@color/maroon_700</item>
+    </style>
 </resources>

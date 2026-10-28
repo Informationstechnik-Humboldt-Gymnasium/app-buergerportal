@@ -19,13 +19,12 @@
 
 ## Android-Features
 
-- ✅ Echte Anmeldung gegen Supabase Auth
-- ✅ Profil aus `profiles`-Tabelle
-- ✅ Bürgerdaten aus `kv` (`mks:registry:v4`)
-- ✅ Termine aus `kv` (`mks:appointments:v1`)
-- ✅ Ankündigungen aus `kv` (`mks:announcements:v1`)
-- ✅ Echter QR-Code aus der Bürger-ID
-- ✅ Abmelden
+- ✅ WebView-Wrapper für das komplette Bürgerportal
+- ✅ Zeigt https://maiskolbistan-buergerportal.netlify.app als App an
+- ✅ JavaScript & LocalStorage aktiviert
+- ✅ Zurück-Button navigiert in der WebView
+- ✅ Lade-Indikator & Offline-Fehlermeldung
+- ✅ Alle Website-Updates sofort in der App sichtbar
 
 ## Dokumentation
 

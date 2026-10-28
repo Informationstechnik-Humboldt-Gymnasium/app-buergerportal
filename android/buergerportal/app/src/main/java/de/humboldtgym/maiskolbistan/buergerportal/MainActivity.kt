@@ -1,120 +1,89 @@
 package de.humboldtgym.maiskolbistan.buergerportal
 
+import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import de.humboldtgym.maiskolbistan.buergerportal.ui.screens.AppointmentsScreen
-import de.humboldtgym.maiskolbistan.buergerportal.ui.screens.IdCardScreen
-import de.humboldtgym.maiskolbistan.buergerportal.ui.screens.LoginScreen
-import de.humboldtgym.maiskolbistan.buergerportal.ui.screens.OverviewScreen
-import de.humboldtgym.maiskolbistan.buergerportal.ui.screens.SettingsScreen
-import de.humboldtgym.maiskolbistan.buergerportal.ui.theme.BuergerportalTheme
-import de.humboldtgym.maiskolbistan.buergerportal.ui.viewmodel.AuthViewModel
+import android.view.View
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var webView: WebView
+    private lateinit var progress: View
+
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BuergerportalTheme {
-                BuergerportalApp()
+        setContentView(R.layout.activity_main)
+
+        webView = findViewById(R.id.webview)
+        progress = findViewById(R.id.progress)
+
+        webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            databaseEnabled = true
+            loadWithOverviewMode = true
+            useWideViewPort = true
+            setSupportZoom(true)
+            builtInZoomControls = true
+            displayZoomControls = false
+        }
+
+        webView.webChromeClient = WebChromeClient()
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                progress.visibility = View.VISIBLE
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                progress.visibility = View.GONE
+            }
+
+            override fun onReceivedError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                error: WebResourceError?
+            ) {
+                progress.visibility = View.GONE
+                if (request?.isForMainFrame == true) {
+                    view?.loadUrl("about:blank")
+                    view?.loadData(
+                        "<html><body style='font-family:sans-serif;padding:24px;text-align:center;'>" +
+                        "<h2>Verbindungsfehler</h2>" +
+                        "<p>Bitte prüfe deine Internetverbindung und tippe, um es erneut zu versuchen.</p>" +
+                        "</body></html>",
+                        "text/html",
+                        "UTF-8"
+                    )
+                    view?.setOnClickListener { loadPortal() }
+                }
             }
         }
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (webView.canGoBack()) {
+                webView.goBack()
+            } else {
+                finish()
+            }
+        }
+
+        loadPortal()
     }
-}
 
-sealed class Screen(val route: String, val labelRes: Int, val icon: @Composable () -> Unit) {
-    object Overview : Screen("overview", R.string.overview, { Icon(Icons.Default.Home, null) })
-    object Appointments : Screen("appointments", R.string.appointments, { Icon(Icons.Default.CalendarToday, null) })
-    object IdCard : Screen("idcard", R.string.id_card, { Icon(Icons.Default.Person, null) })
-    object Settings : Screen("settings", R.string.settings, { Icon(Icons.Default.Settings, null) })
-}
+    private fun loadPortal() {
+        webView.loadUrl(PORTAL_URL)
+    }
 
-@Composable
-fun BuergerportalApp() {
-    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory)
-    val navController = rememberNavController()
-    val items = listOf(Screen.Overview, Screen.Appointments, Screen.IdCard, Screen.Settings)
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-    val showBottomBar = currentDestination?.route in items.map { it.route }
-
-    val authState by authViewModel.uiState
-
-    when {
-        authState.isLoading -> {
-            CircularProgressIndicator(modifier = Modifier.fillMaxSize())
-        }
-        !authState.isLoggedIn -> {
-            LoginScreen(
-                onLogin = { email, password -> authViewModel.signIn(email, password) },
-                isLoading = authState.isLoading,
-                error = authState.error,
-                onDismissError = authViewModel::dismissError
-            )
-        }
-        else -> {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                bottomBar = {
-                    if (showBottomBar) {
-                        NavigationBar {
-                            items.forEach { screen ->
-                                NavigationBarItem(
-                                    icon = { screen.icon() },
-                                    label = { Text(stringResource(screen.labelRes)) },
-                                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                                    onClick = {
-                                        navController.navigate(screen.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-            ) { innerPadding ->
-                NavHost(
-                    navController = navController,
-                    startDestination = Screen.Overview.route,
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    composable(Screen.Overview.route) { OverviewScreen() }
-                    composable(Screen.Appointments.route) { AppointmentsScreen() }
-                    composable(Screen.IdCard.route) { IdCardScreen() }
-                    composable(Screen.Settings.route) { SettingsScreen(onLogout = { authViewModel.signOut() }) }
-                }
-            }
-        }
+    companion object {
+        private const val PORTAL_URL = "https://maiskolbistan-buergerportal.netlify.app"
     }
 }
